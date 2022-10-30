@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?><!-- SQL 맵퍼 파일은 xml이기 때문에 제일 먼저 xml 
+	선언이 옵니다. -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.vue.mybatis.mapper.MemberMapper">
+
+	<select id="isId" resultType="member">
+		select * from member where id = #{id}
+	</select>
+	
+	<insert id="insert" parameterType="member">
+		insert into member 
+		values (#{id},#{password},#{name},#{age},#{gender},#{email})
+	</insert>
+	
+	<update id="update" parameterType="member">
+		update member 
+		set name=#{name}, age=#{age}, 
+		gender=#{gender}, email=#{email}
+		where id=#{id}
+	</update>
+	
+	<sql id="search_">
+		  <if test="search_field!=null">
+				and
+				<foreach collection="search_field" separator="or" item="index">
+					<choose>
+						<when test='index=="I"'>id</when>
+						<when test='index=="N"'>name</when>
+						<when test='index=="A"'>age</when>
+						<when test='index=="G"'>gender</when>
+					</choose>
+					like #{search_word}
+				</foreach>
+			</if>
+		</sql>
+	   
+   
+   <select id="getSearchList" resultType="member">
+      select *  
+      from (select b.*, rownum rnum  
+       		from (select * 
+       			  from member 
+             	  where id != 'admin'
+        		 <include refid="search_"/>
+            	order by id
+            	) b
+            	where rownum &lt;= #{end}
+             )
+      where rnum &gt;= #{start} and rnum &lt;= #{end}
+   </select> 
+   
+   <select id="getSearchListCount" parameterType="map" resultType="int">
+      select count(*) 
+      from member 
+      where id != 'admin'
+      <include refid="search_"/>
+   </select>
+   
+	<delete id="delete" parameterType="String">
+		delete member 
+		where id = #{id}
+	</delete>
+</mapper>

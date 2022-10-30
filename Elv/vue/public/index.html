@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+<!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+  </head>
+  <style>
+    /*div{text-align:center}*/
+    .niji{
+    font-family: 'Jua', sans-serif;
+    font-size:45px;
+    color: #f35626;
+ 	  background-image: -webkit-linear-gradient(92deg, #f35626, #feab3a);
+ 	  background-clip: text;
+ 	  background: transparent;
+ 	  animation: hue 3s infinite linear;
+    }
+    @keyframes hue {
+ 	 from {-webkit-filter: hue-rotate(0deg);}
+ 	 to {-webkit-filter: hue-rotate(-360deg);}
+}
+   .fa-paw{font-size:40px;color:lightsalmon}
+  </style>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>

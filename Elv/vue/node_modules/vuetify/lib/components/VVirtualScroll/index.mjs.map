@@ -1,0 +1,1 @@
+{"version":3,"file":"index.mjs","names":["VVirtualScroll"],"sources":["../../../src/components/VVirtualScroll/index.ts"],"sourcesContent":["import VVirtualScroll from './VVirtualScroll'\n\nexport { VVirtualScroll }\nexport default VVirtualScroll\n"],"mappings":"OAAOA,c;AAEP,SAASA,cAAT;AACA,eAAeA,cAAf"}

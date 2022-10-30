@@ -1,0 +1,9 @@
+.v-radio-group > .v-input__control {
+  flex-direction: column;
+}
+.v-radio-group > .v-label {
+  margin-inline-start: 12px;
+}
+.v-radio-group > .v-label + .v-selection-control-group {
+  margin-top: 16px;
+}

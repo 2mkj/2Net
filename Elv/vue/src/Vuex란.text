@@ -1,0 +1,48 @@
+1. Vuex란
+컴포넌트간 데이터 전달을 위해 부모 -> 자식에서는 props 방법으로,
+자식 -> 부모로 전달은 context.emit()으로 데이터를 주고 받았습니다.
+이와는 달리 데이터를 한 곳에서 저장하고 관리하는 Vuex를 알아보겠습니다.
+
+(1) Vue.js의 상태 관리를 위한 패턴이자 라이브러리입니다
+    상태 관리란 여러 컴포넌트 간의 데이터 전달과 이벤트 통신을 한곳에서 관리하는 패턴을 의미합니다.
+
+(2) Vuex의 주요 기능은 개발하는 애플리케이션의 모든 컴포넌트에 대한 중앙 집중식 저장소 역할 및 관리 입니다
+
+(3) Vuex의 핵심 구성
+    - state : 컴포넌트 간에 공유할 변수를 정의합니다.
+                    각 컴포넌트에서 동일한 값을 사용할 수 있습니다.
+    - mutations : state의 값을 변경하는 곳으로 이곳을 통해 state를 변경할 수 있습니다.
+                            actions안에서 context.commit()으로 실행합니다.
+
+    - actions : mutations를 실행시키는 역할을 합니다.
+                    store.dispatch()로 실행시킬 수 있습니다.
+    
+    store.dispatch()는 컴포넌트에서 작성합니다.
+
+    컴포넌트에서 store.dispatch()
+    --> actions에서 context.commit()
+    --> mutations에서 state의 값을 변경
+
+   2. main.js
+                import { createApp } from 'vue'
+                import App from './ex17_store/_1/parentView.vue';
+                import store from "./ex17_store/_1/store/index.js"
+                
+                //배치할 요소(#app)와 애플리케이션을 연결하는것을 마운트라고 합니다.
+                createApp (App).use(store).mount('#app')
+
+  3.vuex 설치하기
+
+                C:\vue_project\vue3-first>npm install vuex@next
+                
+                added 1 package, and audited 1361 packages in 3s
+                
+                87 packages are looking for funding
+                run npm fund for details
+                
+                11 moderate severity vulnerabilities
+                
+                To address issues that do not require attention. run:
+
+4. 참고사이트
+https://vuex.vuejs.org/

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- SQL 맵퍼 파일은 xml이기 때문에 제일 먼저 xml 선언이 옵니다. -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- Mapper 인터페이스의 패키지명과 이름을 네임스페이스로 설정합니다. -->
+<mapper namespace="com.vue.mybatis.mapper.BoardMapper">
+
+	<select id="getListCount" resultType="int">
+		select count(*) from board
+	</select>
+
+	<!-- 문법 오류 where rnum >= #{start} ==> 해결법 1) where rnum &gt;= #{start} 2) 
+		where rnum <![CDATA[ >= ]]> #{start} ==> 설명 1) HTML 문서는 '<', '>'와 같은 마크업 
+		문자들을 파싱해서 읽어들이는 구조입니다. 그래서 마크업 문자들을 작다(<), 크다(>)로 사용하기 위해서 '&lt;', '&gt;' 
+		등의 escape 문자열(escape character)을 이용해야 합니다. < -> &lt; > -> &gt; 2) CDATA(Character 
+		DATA) - XML 파서가 분석하지 않는 문자 데이터를 의미합니다. 사용하는 방법은 <![CDATA[ 와 ]]> 사이에 문자들을 
+		넣으면 됩니다. -->
+
+	<select id="getBoardList" parameterType="java.util.Map"	resultType="board">
+		select * 
+		from ( select rownum rnum, b.*
+		  from (select board.*,  nvl(cnt,0) cnt
+				from board left outer join (select comments.board_num, count(*) cnt
+											 from comments
+											 group by comments.board_num) c
+				on board.board_num = c.board_num
+				order by BOARD_RE_REF desc,
+				BOARD_RE_SEQ asc) b
+		  where rownum &lt;= #{end}
+		)
+		where rnum &gt;= #{start} and rnum &lt;= #{end}
+	</select>
+
+	<!-- 1. jdbcType=VARCHAR: 첨부 파일을 추가 하지 않은 경우 에러 처리해 줍니다. 
+				해당 필드가 null인 경우 jdbcType=VARCHAR로 처리하면 null로 설정됩니다. 
+	
+		2.① insert (order="BEFORE") 
+		    조회(select nvl(max(BOARD_NUM),0)+1 from board)합니다. 
+		  
+		  ② 조회한 값을 keyProperty="BOARD_NUM"에서 설정한 대로 
+		    "BOARD_NUM" 프로퍼티에 저장합니다. 
+		    (public void setBOARD_NUM(int bOARD_NUM)) 
+		
+		  ③ insert문의 #{BOARD_NUM}는 지금 구한 값을 BoardBean에서가져옵니다. 
+		  (public String getBOARD_NUM() {return BOARD_NUM; }) 
+	 -->
+	<insert id="insertBoard" parameterType="board">
+		<selectKey resultType="int" order="BEFORE"
+			       keyProperty="BOARD_NUM">
+			select nvl(max(BOARD_NUM),0)+1 from board
+		</selectKey>
+		insert into board
+		(BOARD_NUM,
+		BOARD_NAME, BOARD_PASS, BOARD_SUBJECT,
+		BOARD_CONTENT, BOARD_FILE, BOARD_ORIGINAL,
+		BOARD_RE_REF,
+		BOARD_RE_LEV, BOARD_RE_SEQ, BOARD_READCOUNT,
+		BOARD_DATE, BOARD_SECRET)
+		values
+		(#{BOARD_NUM},
+		#{BOARD_NAME}, #{BOARD_PASS}, #{BOARD_SUBJECT},
+		#{BOARD_CONTENT}, #{BOARD_FILE, jdbcType=VARCHAR},
+		#{BOARD_ORIGINAL, jdbcType=VARCHAR},
+		#{BOARD_NUM},
+		#{BOARD_RE_LEV}, #{BOARD_RE_SEQ}, #{BOARD_READCOUNT},
+		sysdate, #{BOARD_SECRET})
+	</insert>
+	
+	<update id="setReadCountUpdate" parameterType="int" >
+		update board 
+		set BOARD_READCOUNT = BOARD_READCOUNT + 1 
+		where BOARD_NUM = #{number}
+	</update>
+	
+	<select id="getDetail" parameterType="int" resultType="board">
+		select * from board where BOARD_NUM = #{number}
+	</select>
+	
+	<select id="isBoardWriter" parameterType="map" resultType="board">
+		select * from board
+		where BOARD_NUM = #{num}
+		and   BOARD_PASS = #{pass}
+	</select>
+	
+	<update id="boardModify" parameterType="board">
+		update board 
+		set BOARD_SUBJECT=#{BOARD_SUBJECT}, 
+		BOARD_CONTENT=#{BOARD_CONTENT}, 
+		BOARD_FILE=#{BOARD_FILE, jdbcType=VARCHAR},
+		BOARD_ORIGINAL=#{BOARD_ORIGINAL, jdbcType=VARCHAR}   
+		where BOARD_NUM=#{BOARD_NUM}
+	</update> 
+	
+	<insert id="boardReply" parameterType="board">
+		<selectKey resultType="int" order="BEFORE"
+			       keyProperty="BOARD_NUM">
+			select nvl(max(BOARD_NUM),0)+1 from board
+		</selectKey>
+		insert into board
+		(BOARD_NUM,
+		BOARD_NAME, BOARD_PASS, BOARD_SUBJECT,
+		BOARD_CONTENT, BOARD_RE_REF,
+		BOARD_RE_LEV, BOARD_RE_SEQ, BOARD_READCOUNT,
+		BOARD_DATE)
+		values
+		(#{BOARD_NUM},
+		#{BOARD_NAME}, #{BOARD_PASS}, #{BOARD_SUBJECT},
+		#{BOARD_CONTENT}, #{BOARD_RE_REF},
+		#{BOARD_RE_LEV}, #{BOARD_RE_SEQ}, #{BOARD_READCOUNT},
+		sysdate)
+	</insert>
+	
+	<update id="boardReplyUpdate" parameterType="board">
+		update board 
+		set   BOARD_RE_SEQ = BOARD_RE_SEQ + 1  
+			  where BOARD_RE_REF = #{BOARD_RE_REF} 
+			  and   BOARD_RE_SEQ <![CDATA[>]]> #{BOARD_RE_SEQ}
+	</update>
+	
+	<delete id="boardDelete" parameterType="board">
+		<![CDATA[
+		delete from board  
+		where  BOARD_RE_REF = #{BOARD_RE_REF}
+		and    BOARD_RE_LEV >=#{BOARD_RE_LEV} 
+		and    BOARD_RE_SEQ >=#{BOARD_RE_SEQ}
+		and    BOARD_RE_SEQ <=(
+				 	  		 nvl((SELECT min(BOARD_RE_SEQ)-1
+				 	         FROM   board 
+				 		     WHERE  BOARD_RE_REF=#{BOARD_RE_REF} 
+				 	         AND    BOARD_RE_LEV=#{BOARD_RE_LEV}
+				 	         AND    BOARD_RE_SEQ > #{BOARD_RE_SEQ}) , 
+				                   (SELECT max(BOARD_RE_SEQ) 
+				 	                FROM   board 
+				 					WHERE  BOARD_RE_REF=#{BOARD_RE_REF} ))
+				                  )
+	 ]]>
+	</delete>
+	
+	<select id="getDeleteFileList" resultType="String">
+		select board_file from delete_file
+	</select>
+	
+	<delete id="deleteFileList" parameterType="String">
+		delete delete_file where board_file=#{board_file}	
+	</delete>
+	
+	
+</mapper>

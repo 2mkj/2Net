@@ -1,0 +1,17 @@
+package com;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+//빌드 후에 사용할 클래스입니다.
+@Configuration
+public class WebMvcConfig implements WebMvcConfigurer{
+	
+	@Override
+	  public void addResourceHandlers(ResourceHandlerRegistry registry) {
+	  registry.addResourceHandler("/**")
+	  .addResourceLocations("classpath:/static/","classpath:/templates/"); 
+	  }
+	 
+}
